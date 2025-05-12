@@ -1,0 +1,73 @@
+# top-most EditorConfig file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 2
+max_line_length = 120
+
+# GDScript files
+[*.gd]
+indent_style = tab
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Godot resource files (scenes, resources, etc.)
+[*.{tscn,tres,gdshader,gdscene}]
+indent_style = tab
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown files (tabs for code blocks, but beware: lists may not render as expected)
+[*.md]
+indent_style = tab
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = off
+
+# JSON, YAML, TOML, and similar config files
+[*.{json,yml,yaml,toml}]
+indent_style = tab
+indent_size = 2
+
+# C# files (if using Godot C#)
+[*.cs]
+indent_style = tab
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Shell scripts
+[*.sh]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 2
+
+# Ignore minified files
+[*.min.js]
+max_line_length = off
+trim_trailing_whitespace = false
+indent_style = tab
+indent_size = 2
+
+# Makefiles use tabs (default for Makefiles)
+[Makefile]
+indent_style = tab
+
+# Python files (tabs are allowed, but PEP8 recommends spaces; this enforces tabs)
+[*.py]
+indent_style = tab
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Optional: Add more file types as needed
