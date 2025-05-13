@@ -4,7 +4,7 @@ extends Object
 const tile_size = Vector2i(16, 16)
 
 
-static func grid_to_world(grid_pos: Vector2i) -> Vector2i:
+static  func grid_to_world(grid_pos: Vector2i) -> Vector2i:
 	var world_pos: Vector2i = grid_pos * tile_size
 	return world_pos
 

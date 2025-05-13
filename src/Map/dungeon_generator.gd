@@ -18,16 +18,6 @@ const entity_types = {
 @export_category("Monsters RNG")
 @export var max_monsters_per_room = 2
 
-@export_category("Generation Steps")
-@export_enum("BSP", "CellularAutomata", "Drunkard") var algorithm_steps: Array[int] = [0]
-
-@export_category("Cellular Automata")
-@export var ca_fill_chance: float = 0.45
-@export var ca_steps: int = 5
-
-@export_category("Drunkard's Walk")
-@export var drunkard_steps: int = 2000
-
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
@@ -37,32 +27,17 @@ func generate_dungeon(player: Entity) -> MapData:
 	var dungeon := MapData.new(map_width, map_height, player)
 	dungeon.entities.append(player)
 
-	for step in algorithm_steps:
-		match step:
-			# BSP
-			0:
-				_step_bsp(dungeon)
-			# Cellular Automata
-			1:
-				_step_cellular_automata(dungeon)
-			# Drunkard
-			2:
-				_step_drunkard(dungeon)
-
-	player.grid_position = _find_random_floor_tile(dungeon)
-	player.map_data = dungeon
-	dungeon.setup_pathfinding()
-	return dungeon
-
-# --- BSP Dungeon Generation (rooms & corridors) ---
-func _step_bsp(dungeon: MapData) -> void:
 	var rooms: Array[Rect2i] = []
+
 	for _try_room in max_rooms:
 		var room_width: int = _rng.randi_range(room_min_size, room_max_size)
 		var room_height: int = _rng.randi_range(room_min_size, room_max_size)
+
 		var x: int = _rng.randi_range(0, dungeon.width - room_width - 1)
 		var y: int = _rng.randi_range(0, dungeon.height - room_height - 1)
+
 		var new_room := Rect2i(x, y, room_width, room_height)
+
 		var has_intersections := false
 		for room in rooms:
 			if room.intersects(new_room):
@@ -73,128 +48,19 @@ func _step_bsp(dungeon: MapData) -> void:
 
 		_carve_room(dungeon, new_room)
 
-		if not rooms.is_empty():
+		if rooms.is_empty():
+			player.grid_position = new_room.get_center()
+			player.map_data = dungeon
+		else:
 			_tunnel_between(dungeon, rooms.back().get_center(), new_room.get_center())
 
 		_place_entities(dungeon, new_room)
 
 		rooms.append(new_room)
 
-# --- Cellular Automata Dungeon Generation ---
-func _step_cellular_automata(dungeon: MapData) -> void:
-	# Fill map randomly
-	for y in range(dungeon.height):
-		for x in range(dungeon.width):
-			var tile_type = dungeon.tile_types.wall
-			if _rng.randf() < ca_fill_chance:
-				tile_type = dungeon.tile_types.floor
-			dungeon.get_tile(Vector2i(x, y)).set_tile_type(tile_type)
+	dungeon.setup_pathfinding()
+	return dungeon
 
-	# Run CA steps
-	for _step in ca_steps:
-		var new_map = []
-		for y in range(dungeon.height):
-			var row = []
-			for x in range(dungeon.width):
-				var wall_count = _count_adjacent_walls(dungeon, x, y)
-				var tile_type = dungeon.tile_types.floor
-				if wall_count >= 5:
-					tile_type = dungeon.tile_types.wall
-				row.append(tile_type)
-			new_map.append(row)
-		# Apply new map
-		for y in range(dungeon.height):
-			for x in range(dungeon.width):
-				dungeon.get_tile(Vector2i(x, y)).set_tile_type(new_map[y][x])
-
-	# Remove disconnected caves
-	_clean_disconnected_areas(dungeon)
-
-func _count_adjacent_walls(dungeon: MapData, x: int, y: int) -> int:
-	var count = 0
-	for dy in range(-1, 2):
-		for dx in range(-1, 2):
-			if dx == 0 and dy == 0:
-				continue
-			var nx = x + dx
-			var ny = y + dy
-			if nx < 0 or ny < 0 or nx >= dungeon.width or ny >= dungeon.height:
-				count += 1
-			elif dungeon.get_tile(Vector2i(nx, ny)).tile_type == dungeon.tile_types.wall:
-				count += 1
-	return count
-
-func _clean_disconnected_areas(dungeon: MapData) -> void:
-	var width = dungeon.width
-	var height = dungeon.height
-	var visited = {}
-	var queue = []
-	var found_main = false
-
-	# Find the first floor tile to start the flood fill
-	for y in range(height):
-		for x in range(width):
-			var pos = Vector2i(x, y)
-			if dungeon.get_tile(pos).tile_type == dungeon.tile_types.floor:
-				queue.append(pos)
-				visited[pos] = true
-				found_main = true
-				break
-		if found_main:
-			break
-
-	# Flood fill to mark all connected floor tiles
-	while not queue.is_empty():
-		var current = queue.pop_front()
-		for dir in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-			var neighbor = current + dir
-			if neighbor.x < 0 or neighbor.y < 0 or neighbor.x >= width or neighbor.y >= height:
-				continue
-			if visited.has(neighbor):
-				continue
-			if dungeon.get_tile(neighbor).tile_type == dungeon.tile_types.floor:
-				visited[neighbor] = true
-				queue.append(neighbor)
-
-	# Any floor tile not visited is not connected to the main cave, so fill with wall
-	for y in range(height):
-		for x in range(width):
-			var pos = Vector2i(x, y)
-			if dungeon.get_tile(pos).tile_type == dungeon.tile_types.floor and not visited.has(pos):
-				dungeon.get_tile(pos).set_tile_type(dungeon.tile_types.wall)
-
-# --- Drunkard's Walk Dungeon Generation ---
-func _step_drunkard(dungeon: MapData) -> void:
-	# If the map is all walls, start from center
-	var all_walls := true
-	for y in range(dungeon.height):
-		for x in range(dungeon.width):
-			if dungeon.get_tile(Vector2i(x, y)).tile_type != dungeon.tile_types.wall:
-				all_walls = false
-				break
-
-	@warning_ignore("integer_division")
-	var pos = Vector2i(dungeon.width / 2, dungeon.height / 2)
-	if not all_walls:
-		# Find a floor tile to start from
-		for y in range(dungeon.height):
-			for x in range(dungeon.width):
-				if dungeon.get_tile(Vector2i(x, y)).tile_type == dungeon.tile_types.floor:
-					pos = Vector2i(x, y)
-					break
-
-	dungeon.get_tile(pos).set_tile_type(dungeon.tile_types.floor)
-
-	for _step in drunkard_steps:
-		var dir = _rng.randi_range(0, 3)
-		match dir:
-			0: pos.x = clamp(pos.x + 1, 1, dungeon.width - 2)
-			1: pos.x = clamp(pos.x - 1, 1, dungeon.width - 2)
-			2: pos.y = clamp(pos.y + 1, 1, dungeon.height - 2)
-			3: pos.y = clamp(pos.y - 1, 1, dungeon.height - 2)
-		dungeon.get_tile(pos).set_tile_type(dungeon.tile_types.floor)
-
-# --- Room/Tile Carving and Tunneling ---
 func _carve_room(dungeon: MapData, room: Rect2i) -> void:
 	var inner: Rect2i = room.grow(-1)
 	for y in range(inner.position.y, inner.end.y + 1):
@@ -222,9 +88,9 @@ func _tunnel_between(dungeon: MapData, start: Vector2i, end: Vector2i) -> void:
 		_tunnel_horizontal(dungeon, end.y, start.x, end.x)
 
 func _carve_tile(dungeon: MapData, x: int, y: int) -> void:
-	var tile_position = Vector2i(x, y)
-	var tile: Tile = dungeon.get_tile(tile_position)
-	tile.set_tile_type(dungeon.tile_types.floor)
+		var tile_position = Vector2i(x, y)
+		var tile: Tile = dungeon.get_tile(tile_position)
+		tile.set_tile_type(dungeon.tile_types.floor)
 
 func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 	var number_of_monsters: int = _rng.randi_range(0, max_monsters_per_room)
@@ -247,26 +113,3 @@ func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 			else:
 				new_entity = Entity.new(dungeon, new_entity_position, entity_types.troll)
 			dungeon.entities.append(new_entity)
-
-# Corrected function to find a random floor tile
-func _find_random_floor_tile(dungeon: MapData) -> Vector2i:
-	var floor_tiles: Array[Vector2i] = []
-	for y in range(dungeon.height):
-		for x in range(dungeon.width):
-			if dungeon.get_tile(Vector2i(x, y)).tile_type == dungeon.tile_types.floor:
-				floor_tiles.append(Vector2i(x, y))
-
-	if floor_tiles.is_empty():
-		# This is a problem. If there are no floor tiles, where does the player go?
-		# The original code would have crashed here anyway if floor_tiles was empty
-		# before even getting to the flawed indexing.
-		# Returning (0,0) might not be safe if it's a wall.
-		# You should probably handle this case more robustly,
-		# maybe by ensuring at least one floor tile exists after generation
-		# or by erroring out if generation fails to produce walkable space.
-		printerr("CRITICAL: No floor tiles found in the dungeon to place player!")
-		return Vector2i.ZERO # Fallback, but potentially problematic.
-
-	# Now, correctly pick a random index from the collected floor_tiles
-	var random_index: int = _rng.randi_range(0, floor_tiles.size() - 1)
-	return floor_tiles[random_index]

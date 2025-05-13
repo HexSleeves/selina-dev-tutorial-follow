@@ -7,8 +7,8 @@ extends Resource
 @export_color_no_alpha var color: Color = Color.WHITE
 
 @export_category("Mechanics")
-@export var is_blocking_movement: bool = true
-@export var type: Entity.EntityType = Entity.EntityType.ACTOR
+@export var is_blocking_movment: bool = true
+@export var type: Entity.EntityType
 
 @export_category("Components")
 @export var fighter_definition: FighterComponentDefinition

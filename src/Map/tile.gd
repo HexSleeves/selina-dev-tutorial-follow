@@ -3,10 +3,6 @@ extends Sprite2D
 
 var _definition: TileDefinition
 
-var tile_type: TileDefinition:
-	get:
-		return _definition
-
 var is_explored: bool = false:
 	set(value):
 		is_explored = value
@@ -31,12 +27,8 @@ func set_tile_type(tile_definition: TileDefinition) -> void:
 	texture = _definition.texture
 	modulate = _definition.color_dark
 
-func get_tile_type() -> TileDefinition:
-	return _definition
-
 func is_walkable() -> bool:
 	return _definition.is_walkable
-
 
 func is_transparent() -> bool:
 	return _definition.is_transparent
