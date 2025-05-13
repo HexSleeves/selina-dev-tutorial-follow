@@ -8,8 +8,8 @@ func _init(entity: Entity) -> void:
 	self.entity = entity
 
 
-func perform() -> void:
-	pass
+func perform() -> bool:
+	return false
 
 
 func get_map_data() -> MapData:

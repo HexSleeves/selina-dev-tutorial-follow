@@ -16,10 +16,10 @@ func enter() -> void:
 func exit() -> void:
 	message_panel.self_modulate = Color.WHITE
 
-
+@warning_ignore("unused_parameter")
 func get_action(player: Entity) -> Action:
 	var action: Action
-	
+
 	if Input.is_action_just_pressed("move_up"):
 		message_log.scroll_vertical -= scroll_step
 	elif Input.is_action_just_pressed("move_down"):
@@ -28,11 +28,11 @@ func get_action(player: Entity) -> Action:
 		message_log.scroll_vertical = 0
 	elif Input.is_action_just_pressed("move_right"):
 		message_log.scroll_vertical = message_log.get_v_scroll_bar().max_value
-	
+
 	if Input.is_action_just_pressed("view_history") or Input.is_action_just_pressed("ui_back"):
 		get_parent().transition_to(InputHandler.InputHandlers.MAIN_GAME)
-	
+
 	if Input.is_action_just_pressed("quit"):
 		get_tree().quit()
-	
+
 	return action

@@ -4,6 +4,7 @@ extends Node
 const entity_types = {
 	"orc": preload("res://assets/definitions/entities/actors/entity_definition_orc.tres"),
 	"troll": preload("res://assets/definitions/entities/actors/entity_definition_troll.tres"),
+	"health_potion": preload("res://assets/definitions/entities/items/health_potion_definition.tres")
 }
 
 @export_category("Map Dimensions")
@@ -15,13 +16,16 @@ const entity_types = {
 @export var room_max_size: int = 10
 @export var room_min_size: int = 6
 
-@export_category("Monsters RNG")
-@export var max_monsters_per_room = 2
+@export_category("Entities RNG")
+@export var max_monsters_per_room: int = 2
+@export var max_items_per_room: int = 2
 
 var _rng := RandomNumberGenerator.new()
 
+
 func _ready() -> void:
 	_rng.randomize()
+
 
 func generate_dungeon(player: Entity) -> MapData:
 	var dungeon := MapData.new(map_width, map_height, player)
@@ -61,11 +65,13 @@ func generate_dungeon(player: Entity) -> MapData:
 	dungeon.setup_pathfinding()
 	return dungeon
 
+
 func _carve_room(dungeon: MapData, room: Rect2i) -> void:
 	var inner: Rect2i = room.grow(-1)
 	for y in range(inner.position.y, inner.end.y + 1):
 		for x in range(inner.position.x, inner.end.x + 1):
 			_carve_tile(dungeon, x, y)
+
 
 func _tunnel_horizontal(dungeon: MapData, y: int, x_start: int, x_end: int) -> void:
 	var x_min: int = mini(x_start, x_end)
@@ -73,11 +79,13 @@ func _tunnel_horizontal(dungeon: MapData, y: int, x_start: int, x_end: int) -> v
 	for x in range(x_min, x_max + 1):
 		_carve_tile(dungeon, x, y)
 
+
 func _tunnel_vertical(dungeon: MapData, x: int, y_start: int, y_end: int) -> void:
 	var y_min: int = mini(y_start, y_end)
 	var y_max: int = maxi(y_start, y_end)
 	for y in range(y_min, y_max + 1):
 		_carve_tile(dungeon, x, y)
+
 
 func _tunnel_between(dungeon: MapData, start: Vector2i, end: Vector2i) -> void:
 	if _rng.randf() < 0.5:
@@ -87,13 +95,16 @@ func _tunnel_between(dungeon: MapData, start: Vector2i, end: Vector2i) -> void:
 		_tunnel_vertical(dungeon, start.x, start.y, end.y)
 		_tunnel_horizontal(dungeon, end.y, start.x, end.x)
 
+
 func _carve_tile(dungeon: MapData, x: int, y: int) -> void:
 		var tile_position = Vector2i(x, y)
 		var tile: Tile = dungeon.get_tile(tile_position)
 		tile.set_tile_type(dungeon.tile_types.floor)
 
+
 func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 	var number_of_monsters: int = _rng.randi_range(0, max_monsters_per_room)
+	var number_of_items: int = _rng.randi_range(0, max_items_per_room)
 
 	for _i in number_of_monsters:
 		var x: int = _rng.randi_range(room.position.x + 1, room.end.x - 1)
@@ -112,4 +123,19 @@ func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 				new_entity = Entity.new(dungeon, new_entity_position, entity_types.orc)
 			else:
 				new_entity = Entity.new(dungeon, new_entity_position, entity_types.troll)
+			dungeon.entities.append(new_entity)
+
+	for _i in number_of_items:
+		var x: int = _rng.randi_range(room.position.x + 1, room.end.x - 1)
+		var y: int = _rng.randi_range(room.position.y + 1, room.end.y - 1)
+		var new_entity_position := Vector2i(x, y)
+
+		var can_place = true
+		for entity in dungeon.entities:
+			if entity.grid_position == new_entity_position:
+				can_place = false
+				break
+
+		if can_place:
+			var new_entity: Entity = Entity.new(dungeon, new_entity_position, entity_types.health_potion)
 			dungeon.entities.append(new_entity)

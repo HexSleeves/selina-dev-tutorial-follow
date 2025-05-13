@@ -11,13 +11,14 @@ var map_data: MapData
 
 func generate(player: Entity) -> void:
 	map_data = dungeon_generator.generate_dungeon(player)
+	map_data.entity_placed.connect(entities.add_child)
 	_place_tiles()
 	_place_entities()
 
 
 func update_fov(player_position: Vector2i) -> void:
 	field_of_view.update_fov(map_data, player_position, 8)
-	
+
 	for entity in map_data.entities:
 		entity.visible = map_data.get_tile(entity.grid_position).is_in_view
 

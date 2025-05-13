@@ -1,6 +1,8 @@
 class_name MapData
 extends RefCounted
 
+signal entity_placed(entity)
+
 const tile_types = {
 	"floor": preload("res://assets/definitions/tiles/tile_definition_floor.tres"),
 	"wall": preload("res://assets/definitions/tiles/tile_definition_wall.tres"),
@@ -15,12 +17,14 @@ var entities: Array[Entity]
 var player: Entity
 var pathfinder: AStarGrid2D
 
-func _init(map_width: int, map_height: int, player: Entity) -> void:
+
+func _init(map_width: int, map_height: int, player_entity: Entity) -> void:
 	width = map_width
 	height = map_height
-	self.player = player
+	self.player = player_entity
 	entities = []
 	_setup_tiles()
+
 
 func _setup_tiles() -> void:
 	tiles = []
@@ -30,6 +34,7 @@ func _setup_tiles() -> void:
 			var tile := Tile.new(tile_position, tile_types.wall)
 			tiles.append(tile)
 
+
 func is_in_bounds(coordinate: Vector2i) -> bool:
 	return (
 		0 <= coordinate.x
@@ -38,9 +43,11 @@ func is_in_bounds(coordinate: Vector2i) -> bool:
 		and coordinate.y < height
 	)
 
+
 func get_tile_xy(x: int, y: int) -> Tile:
 	var grid_position := Vector2i(x, y)
 	return get_tile(grid_position)
+
 
 func get_tile(grid_position: Vector2i) -> Tile:
 	var tile_index: int = grid_to_index(grid_position)
@@ -48,16 +55,19 @@ func get_tile(grid_position: Vector2i) -> Tile:
 		return null
 	return tiles[tile_index]
 
+
 func get_blocking_entity_at_location(grid_position: Vector2i) -> Entity:
 	for entity in entities:
 		if entity.is_blocking_movement() and entity.grid_position == grid_position:
 			return entity
 	return null
 
+
 func grid_to_index(grid_position: Vector2i) -> int:
 	if not is_in_bounds(grid_position):
 		return -1
 	return grid_position.y * width + grid_position.x
+
 
 func setup_pathfinding() -> void:
 	pathfinder = AStarGrid2D.new()
@@ -72,11 +82,14 @@ func setup_pathfinding() -> void:
 		if entity.is_blocking_movement():
 			register_blocking_entity(entity)
 
+
 func register_blocking_entity(entity: Entity) -> void:
 	pathfinder.set_point_weight_scale(entity.grid_position, entity_pathfinding_weight)
 
+
 func unregister_blocking_entity(entity: Entity) -> void:
 	pathfinder.set_point_weight_scale(entity.grid_position, 0)
+
 
 func get_actors() -> Array[Entity]:
 	var actors: Array[Entity] = []
@@ -84,6 +97,15 @@ func get_actors() -> Array[Entity]:
 		if entity.get_entity_type() == Entity.EntityType.ACTOR and entity.is_alive():
 			actors.append(entity)
 	return actors
+
+
+func get_items() -> Array[Entity]:
+	var items: Array[Entity] = []
+	for entity in entities:
+		if entity.consumable_component != null:
+			items.append(entity)
+	return items
+
 
 func get_actor_at_location(location: Vector2i) -> Entity:
 	for actor in get_actors():

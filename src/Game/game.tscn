@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://n87rw5cxnnn8"]
+[gd_scene load_steps=21 format=3 uid="uid://n87rw5cxnnn8"]
 
 [ext_resource type="Script" uid="uid://dvoqoto1h21pl" path="res://src/Game/game.gd" id="1_ne6pe"]
 [ext_resource type="Script" uid="uid://bc5wxg1t76x8t" path="res://src/Game/EventHandlers/input_handler.gd" id="2_4winb"]
@@ -6,13 +6,14 @@
 [ext_resource type="Script" uid="uid://cygf2bv5tmj0k" path="res://src/Map/map.gd" id="3_xyl86"]
 [ext_resource type="Script" uid="uid://bwwxnh4gcvla3" path="res://src/Map/dungeon_generator.gd" id="4_15hgc"]
 [ext_resource type="Script" uid="uid://dr4qxmbiprhxu" path="res://src/Game/EventHandlers/game_over_input_handler.gd" id="4_gxmdu"]
-[ext_resource type="Script" uid="uid://btlxgk5dynvqh" path="res://src/Map/field_of_view.gd" id="5_bvmgb"]
+[ext_resource type="Script" path="res://src/Map/field_of_view.gd" id="5_bvmgb"]
 [ext_resource type="Script" uid="uid://ycp1cv3xq1uy" path="res://src/Game/EventHandlers/history_viewer_input_handler.gd" id="5_hrkyq"]
+[ext_resource type="Script" uid="uid://b53mylfnsr6xs" path="res://src/Game/EventHandlers/base_input_handler.gd" id="6_ay8ab"]
 [ext_resource type="Texture2D" uid="uid://h7i8uiwlysq2" path="res://assets/images/kenney_1-bit-pack/monochrome_packed.png" id="8_kgm6f"]
+[ext_resource type="FontFile" uid="uid://bk0fq2awle8d5" path="res://assets/fonts/kenney_kenney-fonts/Fonts/Kenney Pixel.ttf" id="9_8xlja"]
 [ext_resource type="Script" uid="uid://c2ff54geyiesg" path="res://src/GUI/mouseover_checker.gd" id="9_eusf6"]
 [ext_resource type="Script" uid="uid://dch0dx0gg2mt8" path="res://src/GUI/hp_display.gd" id="9_njvq4"]
 [ext_resource type="Script" uid="uid://bpnrlutq4pgsy" path="res://src/GUI/message_log.gd" id="11_xxafc"]
-[ext_resource type="LabelSettings" uid="uid://dwo5wxa1b5g0g" path="res://assets/resources/message_label_settings.tres" id="12_x8pff"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q7j4i"]
 atlas = ExtResource("8_kgm6f")
@@ -34,6 +35,14 @@ bg_color = Color(0.498039, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jnwhi"]
 bg_color = Color(0, 0.498039, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_c11as"]
+font = ExtResource("9_8xlja")
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_sr2kr"]
+font = ExtResource("9_8xlja")
 
 [node name="InterfaceRoot" type="Control"]
 layout_mode = 3
@@ -80,6 +89,9 @@ script = ExtResource("4_gxmdu")
 script = ExtResource("5_hrkyq")
 messages_panel_path = NodePath("../../../../../InfoBar/MessagesPanel")
 message_log_path = NodePath("../../../../../InfoBar/MessagesPanel/MessageLog")
+
+[node name="DummyInputHandler" type="Node" parent="VBoxContainer/SubViewportContainer/SubViewport/Game/InputHandler"]
+script = ExtResource("6_ay8ab")
 
 [node name="Map" type="Node2D" parent="VBoxContainer/SubViewportContainer/SubViewport/Game"]
 script = ExtResource("3_xyl86")
@@ -131,14 +143,14 @@ show_percentage = false
 unique_name_in_owner = true
 layout_mode = 2
 text = "HP:30/30"
-label_settings = ExtResource("12_x8pff")
+label_settings = SubResource("LabelSettings_c11as")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="MouseoverLabel" type="Label" parent="VBoxContainer/InfoBar/StatsPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 10
-label_settings = ExtResource("12_x8pff")
+label_settings = SubResource("LabelSettings_sr2kr")
 
 [node name="MessagesPanel" type="PanelContainer" parent="VBoxContainer/InfoBar"]
 layout_mode = 2

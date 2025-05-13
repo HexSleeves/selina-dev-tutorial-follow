@@ -1,0 +1,60 @@
+[gd_scene load_steps=8 format=3 uid="uid://5tfhmxg04b8o"]
+
+[ext_resource type="Texture2D" uid="uid://h7i8uiwlysq2" path="res://assets/images/kenney_1-bit-pack/monochrome_packed.png" id="1_eygp7"]
+[ext_resource type="Script" uid="uid://dch0dx0gg2mt8" path="res://src/GUI/hp_display.gd" id="2_2vbn3"]
+[ext_resource type="LabelSettings" uid="uid://dwo5wxa1b5g0g" path="res://assets/resources/message_label_settings.tres" id="3_07b8i"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q7j4i"]
+atlas = ExtResource("1_eygp7")
+region = Rect2(768, 336, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ey3id"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+texture = SubResource("AtlasTexture_q7j4i")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oyudx"]
+bg_color = Color(0.498039, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jnwhi"]
+bg_color = Color(0, 0.498039, 0, 1)
+
+[node name="StatsPanel" type="PanelContainer"]
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxTexture_ey3id")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HpDisplay" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("2_2vbn3")
+
+[node name="HpBar" type="ProgressBar" parent="VBoxContainer/HpDisplay"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_styles/background = SubResource("StyleBoxFlat_oyudx")
+theme_override_styles/fill = SubResource("StyleBoxFlat_jnwhi")
+step = 1.0
+value = 50.0
+show_percentage = false
+
+[node name="HpLabel" type="Label" parent="VBoxContainer/HpDisplay"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "HP:30/30"
+label_settings = ExtResource("3_07b8i")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MouseoverLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+label_settings = ExtResource("3_07b8i")
