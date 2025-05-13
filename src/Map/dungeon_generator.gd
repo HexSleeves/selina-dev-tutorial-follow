@@ -34,7 +34,7 @@ func _ready() -> void:
 	_rng.randomize()
 
 func generate_dungeon(player: Entity) -> MapData:
-	var dungeon := MapData.new(map_width, map_height)
+	var dungeon := MapData.new(map_width, map_height, player)
 	dungeon.entities.append(player)
 
 	for step in algorithm_steps:
@@ -49,13 +49,9 @@ func generate_dungeon(player: Entity) -> MapData:
 			2:
 				_step_drunkard(dungeon)
 
-	# If no algorithm placed the player, put them at first floor tile
-	for y in range(dungeon.height):
-		for x in range(dungeon.width):
-			if dungeon.get_tile(Vector2i(x, y)).tile_type == dungeon.tile_types.floor:
-				player.grid_position = Vector2i(x, y)
-				return dungeon
-
+	player.grid_position = _find_random_floor_tile(dungeon)
+	player.map_data = dungeon
+	dungeon.setup_pathfinding()
 	return dungeon
 
 # --- BSP Dungeon Generation (rooms & corridors) ---
@@ -177,6 +173,7 @@ func _step_drunkard(dungeon: MapData) -> void:
 				all_walls = false
 				break
 
+	@warning_ignore("integer_division")
 	var pos = Vector2i(dungeon.width / 2, dungeon.height / 2)
 	if not all_walls:
 		# Find a floor tile to start from
@@ -246,7 +243,30 @@ func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 		if can_place:
 			var new_entity: Entity
 			if _rng.randf() < 0.8:
-				new_entity = Entity.new(new_entity_position, entity_types.orc)
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.orc)
 			else:
-				new_entity = Entity.new(new_entity_position, entity_types.troll)
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.troll)
 			dungeon.entities.append(new_entity)
+
+# Corrected function to find a random floor tile
+func _find_random_floor_tile(dungeon: MapData) -> Vector2i:
+	var floor_tiles: Array[Vector2i] = []
+	for y in range(dungeon.height):
+		for x in range(dungeon.width):
+			if dungeon.get_tile(Vector2i(x, y)).tile_type == dungeon.tile_types.floor:
+				floor_tiles.append(Vector2i(x, y))
+
+	if floor_tiles.is_empty():
+		# This is a problem. If there are no floor tiles, where does the player go?
+		# The original code would have crashed here anyway if floor_tiles was empty
+		# before even getting to the flawed indexing.
+		# Returning (0,0) might not be safe if it's a wall.
+		# You should probably handle this case more robustly,
+		# maybe by ensuring at least one floor tile exists after generation
+		# or by erroring out if generation fails to produce walkable space.
+		printerr("CRITICAL: No floor tiles found in the dungeon to place player!")
+		return Vector2i.ZERO # Fallback, but potentially problematic.
+
+	# Now, correctly pick a random index from the collected floor_tiles
+	var random_index: int = _rng.randi_range(0, floor_tiles.size() - 1)
+	return floor_tiles[random_index]

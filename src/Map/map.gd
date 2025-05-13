@@ -1,8 +1,6 @@
 class_name Map
 extends Node2D
 
-@export var fov_radius: int = 8
-
 var map_data: MapData
 
 @onready var tiles: Node2D = $Tiles
@@ -16,7 +14,7 @@ func generate(player: Entity) -> void:
 	_place_entities()
 
 func update_fov(player_position: Vector2i) -> void:
-	field_of_view.update_fov(map_data, player_position, fov_radius)
+	field_of_view.update_fov(map_data, player_position, 8)
 
 	for entity in map_data.entities:
 		entity.visible = map_data.get_tile(entity.grid_position).is_in_view
