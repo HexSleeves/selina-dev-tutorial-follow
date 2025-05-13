@@ -5,12 +5,12 @@ var item: Entity
 var target_position: Vector2i
 
 
-func _init(entity: Entity, item: Entity, target_position = null) -> void:
-	super._init(entity)
-	self.item = item
-	if not target_position is Vector2i:
-		target_position = entity.grid_position
-	self.target_position = target_position
+func _init(ent: Entity, item_entity: Entity, target_pos = null) -> void:
+	super._init(ent)
+	self.item = item_entity
+	if not target_pos is Vector2i:
+		target_pos = ent.grid_position
+	self.target_position = target_pos
 
 
 func get_target_actor() -> Entity:

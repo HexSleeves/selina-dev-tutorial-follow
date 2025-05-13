@@ -6,6 +6,7 @@ func get_action(consumer: Entity) -> Action:
 	return ItemAction.new(consumer, entity)
 
 
+@warning_ignore("unused_parameter")
 func activate(action: ItemAction) -> bool:
 	return false
 
