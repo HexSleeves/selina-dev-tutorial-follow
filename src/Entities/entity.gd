@@ -33,7 +33,7 @@ var fighter_component: FighterComponent
 var ai_component: BaseAIComponent
 var consumable_component: ConsumableComponent
 var inventory_component: InventoryComponent
-
+var level_component: LevelComponent
 
 func _init(map_data: MapData, start_position: Vector2i, key: String = "") -> void:
 	centered = false
@@ -52,22 +52,26 @@ func set_entity_type(key: String) -> void:
 	entity_name = _definition.name
 	texture = entity_definition.texture
 	modulate = entity_definition.color
-	
+
 	match entity_definition.ai_type:
 		AIType.HOSTILE:
 			ai_component = HostileEnemyAIComponent.new()
 			add_child(ai_component)
-	
+
 	if entity_definition.fighter_definition:
 		fighter_component = FighterComponent.new(entity_definition.fighter_definition)
 		add_child(fighter_component)
-		
+
 	if entity_definition.consumable_definition:
 		_handle_consumable(entity_definition.consumable_definition)
-	
+
 	if entity_definition.inventory_capacity > 0:
 		inventory_component = InventoryComponent.new(entity_definition.inventory_capacity)
 		add_child(inventory_component)
+
+	if entity_definition.level_info:
+		level_component = LevelComponent.new(entity_definition.level_info)
+		add_child(level_component)
 
 
 func move(move_offset: Vector2i) -> void:
@@ -107,7 +111,7 @@ func _handle_consumable(consumable_definition: ConsumableComponentDefinition) ->
 		consumable_component = ConfusionConsumableComponent.new(consumable_definition)
 	elif consumable_definition is FireballDamageConsumableComponentDefinition:
 		consumable_component = FireballDamageConsumableComponent.new(consumable_definition)
-	
+
 	if consumable_component:
 		add_child(consumable_component)
 	consumable_component.entity = self
@@ -124,6 +128,8 @@ func get_save_data() -> Dictionary:
 		save_data["ai_component"] = ai_component.get_save_data()
 	if inventory_component:
 		save_data["inventory_component"] = inventory_component.get_save_data()
+	if level_component:
+		save_data["level_component"] = level_component.get_save_data()
 	return save_data
 
 
@@ -132,10 +138,15 @@ func restore(save_data: Dictionary) -> void:
 	set_entity_type(save_data["key"])
 	if fighter_component and save_data.has("fighter_component"):
 		fighter_component.restore(save_data["fighter_component"])
+
 	if ai_component and save_data.has("ai_component"):
 		var ai_data: Dictionary = save_data["ai_component"]
 		if ai_data["type"] == "ConfusedEnemyAI":
 			var confused_enemy_ai := ConfusedEnemyAIComponent.new(ai_data["turns_remaining"])
 			add_child(confused_enemy_ai)
+
 	if inventory_component and save_data.has("inventory_component"):
 		inventory_component.restore(save_data["inventory_component"])
+
+	if level_component and save_data.has("level_component"):
+		level_component.restore(save_data["level_component"])
