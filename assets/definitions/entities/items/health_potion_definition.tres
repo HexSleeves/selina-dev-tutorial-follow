@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="EntityDefinition" load_steps=6 format=3 uid="uid://bih3ojvm3r78e"]
 
-[ext_resource type="Script" uid="uid://dgkajfln1837e" path="res://src/Entities/Actors/Components/ComponentDefinitions/healing_consumable_component_definition.gd" id="1_c0mne"]
-[ext_resource type="Script" uid="uid://2ps6mt4dpvqc" path="res://src/Entities/entity_definition.gd" id="1_e3smu"]
+[ext_resource type="Script" uid="uid://bsqps13kwuh85" path="res://src/Entities/Actors/Components/ComponentDefinitions/healing_consumable_component_definition.gd" id="1_c0mne"]
+[ext_resource type="Script" uid="uid://ds3j2crdbq52s" path="res://src/Entities/entity_definition.gd" id="1_e3smu"]
 [ext_resource type="Texture2D" uid="uid://h7i8uiwlysq2" path="res://assets/images/kenney_1-bit-pack/monochrome_packed.png" id="2_rjvqh"]
 
 [sub_resource type="Resource" id="Resource_v0dkx"]

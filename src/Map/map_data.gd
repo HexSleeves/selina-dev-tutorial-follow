@@ -18,10 +18,10 @@ var player: Entity
 var pathfinder: AStarGrid2D
 
 
-func _init(map_width: int, map_height: int, player_entity: Entity) -> void:
+func _init(map_width: int, map_height: int, player: Entity) -> void:
 	width = map_width
 	height = map_height
-	self.player = player_entity
+	self.player = player
 	entities = []
 	_setup_tiles()
 
@@ -33,6 +33,7 @@ func _setup_tiles() -> void:
 			var tile_position := Vector2i(x, y)
 			var tile := Tile.new(tile_position, tile_types.wall)
 			tiles.append(tile)
+
 
 
 func is_in_bounds(coordinate: Vector2i) -> bool:

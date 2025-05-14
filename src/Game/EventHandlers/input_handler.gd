@@ -19,14 +19,15 @@ func _ready() -> void:
 	transition_to(start_input_handler)
 	SignalBus.player_died.connect(transition_to.bind(InputHandlers.GAME_OVER))
 
+
 func get_action(player: Entity) -> Action:
-	@warning_ignore("redundant_await")
 	return await current_input_handler.get_action(player)
 
 
 func transition_to(input_handler: InputHandlers) -> void:
+	if current_input_handler == input_handler_nodes[InputHandlers.GAME_OVER]:
+		return
 	if current_input_handler != null:
 		current_input_handler.exit()
-
 	current_input_handler = input_handler_nodes[input_handler]
 	current_input_handler.enter()

@@ -9,3 +9,4 @@ extends Resource
 @export_category("Mechanics")
 @export var is_walkable: bool = true
 @export var is_transparent: bool = true
+

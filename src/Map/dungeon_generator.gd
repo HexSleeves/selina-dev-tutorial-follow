@@ -4,7 +4,10 @@ extends Node
 const entity_types = {
 	"orc": preload("res://assets/definitions/entities/actors/entity_definition_orc.tres"),
 	"troll": preload("res://assets/definitions/entities/actors/entity_definition_troll.tres"),
-	"health_potion": preload("res://assets/definitions/entities/items/health_potion_definition.tres")
+	"health_potion": preload("res://assets/definitions/entities/items/health_potion_definition.tres"),
+	"lightning_scroll": preload("res://assets/definitions/entities/items/lightning_scroll_definition.tres"),
+	"confusion_scroll": preload("res://assets/definitions/entities/items/confusion_scroll_definition.tres"),
+	"fireball_scroll": preload("res://assets/definitions/entities/items/fireball_scroll_definition.tres"),
 }
 
 @export_category("Map Dimensions")
@@ -27,21 +30,21 @@ func _ready() -> void:
 	_rng.randomize()
 
 
-func generate_dungeon(player: Entity) -> MapData:
+func generate_dungeon(player:Entity) -> MapData:
 	var dungeon := MapData.new(map_width, map_height, player)
 	dungeon.entities.append(player)
-
+	
 	var rooms: Array[Rect2i] = []
-
+	
 	for _try_room in max_rooms:
 		var room_width: int = _rng.randi_range(room_min_size, room_max_size)
 		var room_height: int = _rng.randi_range(room_min_size, room_max_size)
-
+		
 		var x: int = _rng.randi_range(0, dungeon.width - room_width - 1)
 		var y: int = _rng.randi_range(0, dungeon.height - room_height - 1)
-
+		
 		var new_room := Rect2i(x, y, room_width, room_height)
-
+		
 		var has_intersections := false
 		for room in rooms:
 			if room.intersects(new_room):
@@ -49,19 +52,19 @@ func generate_dungeon(player: Entity) -> MapData:
 				break
 		if has_intersections:
 			continue
-
+		
 		_carve_room(dungeon, new_room)
-
+		
 		if rooms.is_empty():
 			player.grid_position = new_room.get_center()
 			player.map_data = dungeon
 		else:
 			_tunnel_between(dungeon, rooms.back().get_center(), new_room.get_center())
-
+		
 		_place_entities(dungeon, new_room)
-
+		
 		rooms.append(new_room)
-
+	
 	dungeon.setup_pathfinding()
 	return dungeon
 
@@ -105,18 +108,18 @@ func _carve_tile(dungeon: MapData, x: int, y: int) -> void:
 func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 	var number_of_monsters: int = _rng.randi_range(0, max_monsters_per_room)
 	var number_of_items: int = _rng.randi_range(0, max_items_per_room)
-
+	
 	for _i in number_of_monsters:
 		var x: int = _rng.randi_range(room.position.x + 1, room.end.x - 1)
 		var y: int = _rng.randi_range(room.position.y + 1, room.end.y - 1)
 		var new_entity_position := Vector2i(x, y)
-
+		
 		var can_place = true
 		for entity in dungeon.entities:
 			if entity.grid_position == new_entity_position:
 				can_place = false
 				break
-
+		
 		if can_place:
 			var new_entity: Entity
 			if _rng.randf() < 0.8:
@@ -124,18 +127,27 @@ func _place_entities(dungeon: MapData, room: Rect2i) -> void:
 			else:
 				new_entity = Entity.new(dungeon, new_entity_position, entity_types.troll)
 			dungeon.entities.append(new_entity)
-
+	
 	for _i in number_of_items:
 		var x: int = _rng.randi_range(room.position.x + 1, room.end.x - 1)
 		var y: int = _rng.randi_range(room.position.y + 1, room.end.y - 1)
 		var new_entity_position := Vector2i(x, y)
-
+		
 		var can_place = true
 		for entity in dungeon.entities:
 			if entity.grid_position == new_entity_position:
 				can_place = false
 				break
-
+		
 		if can_place:
-			var new_entity: Entity = Entity.new(dungeon, new_entity_position, entity_types.health_potion)
+			var item_chance: float = _rng.randf()
+			var new_entity: Entity
+			if item_chance < 0.7:
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.health_potion)
+			elif item_chance < 0.8:
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.fireball_scroll)
+			elif item_chance < 0.9:
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.confusion_scroll)
+			else:
+				new_entity = Entity.new(dungeon, new_entity_position, entity_types.lightning_scroll)
 			dungeon.entities.append(new_entity)

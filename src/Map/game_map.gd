@@ -8,10 +8,10 @@ var _tiles := []
 
 
 func initialize(
-	max_rooms: int,
-	room_min_size: int,
+	max_rooms: int, 
+	room_min_size: int, 
 	room_max_size: int,
-	map_width: int,
+	map_width: int, 
 	map_height: int,
 	player: Entity
 	) -> void:
@@ -23,7 +23,7 @@ func initialize(
 		max_rooms,
 		room_min_size,
 		room_max_size,
-		map_width,
+		map_width, 
 		map_height,
 		player
 		)
@@ -44,9 +44,9 @@ func _build_from_tiles() -> void:
 
 func is_in_bounds(coordinate: Vector2i) -> bool:
 	return (
-		0 <= coordinate.x and
+		0 <= coordinate.x and 
 		coordinate.x < width and
-		0 <= coordinate.y and
+		0 <= coordinate.y and 
 		coordinate.y < height
 	)
 
