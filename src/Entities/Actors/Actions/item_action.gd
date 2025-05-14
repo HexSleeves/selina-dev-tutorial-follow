@@ -16,8 +16,9 @@ func _init(entity: Entity, item: Entity, target_position = null) -> void:
 func get_target_actor() -> Entity:
 	return get_map_data().get_actor_at_location(target_position)
 
-
 func perform() -> bool:
 	if item == null:
 		return false
+	if item.equippable_component:
+		return EquipAction.new(entity, item).perform()
 	return item.consumable_component.activate(self)
