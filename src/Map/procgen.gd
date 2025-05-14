@@ -4,6 +4,7 @@ extends RefCounted
 const tile_types = {
 	"wall": preload("res://assets/tile_definitions/tile_wall.tres"),
 	"floor": preload("res://assets/tile_definitions/tile_floor.tres"),
+	"down_stairs": preload("res://assets/definitions/tiles/tile_definition_down_stairs.tres"),
 }
 
 var _rng := RandomNumberGenerator.new()
@@ -16,26 +17,26 @@ func _init() -> void:
 
 
 func generate_dungeon(
-	max_rooms: int, 
-	room_min_size: int, 
+	max_rooms: int,
+	room_min_size: int,
 	room_max_size: int,
-	map_width: int, 
+	map_width: int,
 	map_height: int,
 	player: Entity
 	) -> Array:
 	_initialize_tiles(map_width, map_height)
-	
+
 	var rooms: Array[Rect2i] = []
-	
+
 	for r in max_rooms:
 		var room_width = _rng.randi_range(room_min_size, room_max_size)
 		var room_height = _rng.randi_range(room_min_size, room_max_size)
-		
+
 		var x: int = _rng.randi_range(0, map_width - room_width - 1)
 		var y: int = _rng.randi_range(0, map_height - room_height - 1)
-		
+
 		var new_room := Rect2i(x, y, room_width, room_height)
-		
+
 		var has_intersections := false
 		for room in rooms:
 			if new_room.intersects(room):
@@ -43,16 +44,16 @@ func generate_dungeon(
 				continue
 		if has_intersections:
 			continue
-		
+
 		_carve_room(new_room)
-		
+
 		if rooms.is_empty():
 			player.grid_position = new_room.get_center()
 		else:
 			_tunnel_between(rooms.back().get_center(), new_room.get_center())
-		
+
 		rooms.append(new_room)
-	
+
 	return _tiles
 
 
@@ -97,4 +98,3 @@ func _tunnel_between(start: Vector2i, end: Vector2i):
 	else:
 		_carve_tunnel_v(start.x, start.y, end.y)
 		_carve_tunnel_h(end.y, start.x, end.x)
-	

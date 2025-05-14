@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://d36pgskfsvwj2"]
 
-[ext_resource type="Script" uid="uid://du0s7vgv7g3k6" path="res://src/GUI/Reticle/reticle.gd" id="1_xrboc"]
+[ext_resource type="Script" uid="uid://cqqovlynwog03" path="res://src/GUI/Reticle/reticle.gd" id="1_xrboc"]
 
 [sub_resource type="Animation" id="Animation_5y8ne"]
 length = 0.001

@@ -1,20 +1,23 @@
-[gd_scene load_steps=22 format=3 uid="uid://n87rw5cxnnn8"]
+[gd_scene load_steps=25 format=3 uid="uid://n87rw5cxnnn8"]
 
-[ext_resource type="Script" uid="uid://r5ka2ft3iujv" path="res://src/Game/game.gd" id="1_ne6pe"]
-[ext_resource type="Script" uid="uid://bd04nof0f2wem" path="res://src/Game/EventHandlers/input_handler.gd" id="2_4winb"]
-[ext_resource type="Script" uid="uid://g56cn28n7p4x" path="res://src/Game/EventHandlers/main_game_input_handler.gd" id="3_08i3b"]
-[ext_resource type="Script" uid="uid://kksio6ximera" path="res://src/Map/map.gd" id="3_xyl86"]
-[ext_resource type="Script" uid="uid://w8p3cnacy3vr" path="res://src/Map/dungeon_generator.gd" id="4_15hgc"]
-[ext_resource type="Script" uid="uid://darxf3dfugmm2" path="res://src/Game/EventHandlers/game_over_input_handler.gd" id="4_gxmdu"]
-[ext_resource type="Script" uid="uid://cign0d6ml8vxb" path="res://src/Map/field_of_view.gd" id="5_bvmgb"]
-[ext_resource type="Script" uid="uid://hh84omiahdur" path="res://src/Game/EventHandlers/history_viewer_input_handler.gd" id="5_hrkyq"]
-[ext_resource type="Script" uid="uid://d2me5tsin5318" path="res://src/Game/EventHandlers/base_input_handler.gd" id="6_ay8ab"]
+[ext_resource type="Script" uid="uid://b4knmxq73f7ma" path="res://src/Game/game.gd" id="1_ne6pe"]
+[ext_resource type="Script" uid="uid://bf1qb6csnh5i" path="res://src/Game/game_root.gd" id="1_yidwt"]
+[ext_resource type="Script" uid="uid://dgtlxkfocg6bd" path="res://src/Game/EventHandlers/input_handler.gd" id="2_4winb"]
+[ext_resource type="Script" uid="uid://cpv156v587ff1" path="res://src/Game/EventHandlers/main_game_input_handler.gd" id="3_08i3b"]
+[ext_resource type="Script" uid="uid://dubtl071g17d0" path="res://src/Map/map.gd" id="3_xyl86"]
+[ext_resource type="Script" uid="uid://h8t7gq416lg6" path="res://src/Map/dungeon_generator.gd" id="4_15hgc"]
+[ext_resource type="Script" uid="uid://28mhmjwdm557" path="res://src/Game/EventHandlers/game_over_input_handler.gd" id="4_gxmdu"]
+[ext_resource type="Script" uid="uid://bfw3n061ob4b8" path="res://src/Map/field_of_view.gd" id="5_bvmgb"]
+[ext_resource type="Script" uid="uid://c23w2ordkm05j" path="res://src/Game/EventHandlers/history_viewer_input_handler.gd" id="5_hrkyq"]
+[ext_resource type="Script" uid="uid://bql7hodt0pbsq" path="res://src/Game/EventHandlers/base_input_handler.gd" id="6_ay8ab"]
 [ext_resource type="Texture2D" uid="uid://h7i8uiwlysq2" path="res://assets/images/kenney_1-bit-pack/monochrome_packed.png" id="8_kgm6f"]
 [ext_resource type="FontFile" uid="uid://bk0fq2awle8d5" path="res://assets/fonts/kenney_kenney-fonts/Fonts/Kenney Pixel.ttf" id="9_8xlja"]
-[ext_resource type="Script" uid="uid://bht2v65q2wekp" path="res://src/GUI/mouseover_checker.gd" id="9_eusf6"]
-[ext_resource type="Script" uid="uid://b6rilbsnedfne" path="res://src/GUI/hp_display.gd" id="9_njvq4"]
+[ext_resource type="Script" uid="uid://dl7ygu6ep5avv" path="res://src/GUI/mouseover_checker.gd" id="9_eusf6"]
+[ext_resource type="Script" uid="uid://c7w6flin3g4ia" path="res://src/GUI/hp_display.gd" id="9_njvq4"]
 [ext_resource type="PackedScene" uid="uid://d36pgskfsvwj2" path="res://src/GUI/Reticle/reticle.tscn" id="11_n4t22"]
-[ext_resource type="Script" uid="uid://b6tk7rcgw5yap" path="res://src/GUI/message_log.gd" id="11_xxafc"]
+[ext_resource type="Script" uid="uid://dw3rnkgojja2v" path="res://src/GUI/message_log.gd" id="11_xxafc"]
+[ext_resource type="LabelSettings" uid="uid://dwo5wxa1b5g0g" path="res://assets/resources/message_label_settings.tres" id="16_lr6s2"]
+[ext_resource type="Script" uid="uid://ccn4guqrucjo8" path="res://src/Game/dungeon_floor_label.gd" id="17_nwlnk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q7j4i"]
 atlas = ExtResource("8_kgm6f")
@@ -52,6 +55,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_yidwt")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -71,10 +75,11 @@ stretch = true
 disable_3d = true
 handle_input_locally = false
 canvas_item_default_texture_filter = 0
-size = Vector2i(2, 2)
+size = Vector2i(1152, 536)
 render_target_update_mode = 4
 
 [node name="Game" type="Node2D" parent="VBoxContainer/SubViewportContainer/SubViewport"]
+unique_name_in_owner = true
 script = ExtResource("1_ne6pe")
 
 [node name="InputHandler" type="Node" parent="VBoxContainer/SubViewportContainer/SubViewport/Game"]
@@ -151,6 +156,12 @@ label_settings = SubResource("LabelSettings_c11as")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="DungeonFloorLabel" type="Label" parent="VBoxContainer/InfoBar/StatsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Dungeon Level: 1"
+label_settings = ExtResource("16_lr6s2")
+script = ExtResource("17_nwlnk")
+
 [node name="MouseoverLabel" type="Label" parent="VBoxContainer/InfoBar/StatsPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 10
@@ -174,4 +185,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [connection signal="player_created" from="VBoxContainer/SubViewportContainer/SubViewport/Game" to="VBoxContainer/InfoBar/StatsPanel/VBoxContainer/HpDisplay" method="initialize"]
+[connection signal="dungeon_floor_changed" from="VBoxContainer/SubViewportContainer/SubViewport/Game/Map" to="VBoxContainer/InfoBar/StatsPanel/VBoxContainer/DungeonFloorLabel" method="set_dungeon_floor"]
 [connection signal="entities_focussed" from="VBoxContainer/SubViewportContainer/SubViewport/Game/Map/MouseoverChecker" to="VBoxContainer/InfoBar/StatsPanel/VBoxContainer/MouseoverLabel" method="set_text"]
